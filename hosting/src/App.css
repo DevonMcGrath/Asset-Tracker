@@ -1,0 +1,136 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+img {
+  background: white;
+  color: #32302f;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+    Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body,
+header,
+nav,
+main,
+footer,
+article,
+section,
+address {
+  display: block;
+  padding: 0;
+  margin: 0;
+  font-size: 100%;
+  font-style: normal;
+}
+
+select {
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  appearance: none;
+  background: url(data:image/svg+xml;base64,PHN2ZyBpZD0iTGF5ZXJfMSIgZGF0YS1uYW1lPSJMYXllciAxIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0Ljk1IDEwIj48ZGVmcz48c3R5bGU+LmNscy0ye2ZpbGw6IzQ0NDt9PC9zdHlsZT48L2RlZnM+PHRpdGxlPmFycm93czwvdGl0bGU+PHBvbHlnb24gY2xhc3M9ImNscy0yIiBwb2ludHM9IjEuNDEgNC42NyAyLjQ4IDMuMTggMy41NCA0LjY3IDEuNDEgNC42NyIvPjxwb2x5Z29uIGNsYXNzPSJjbHMtMiIgcG9pbnRzPSIzLjU0IDUuMzMgMi40OCA2LjgyIDEuNDEgNS4zMyAzLjU0IDUuMzMiLz48L3N2Zz4=)
+    no-repeat right 2px center;
+}
+
+button {
+  border: none;
+  background: none;
+}
+button:hover {
+  cursor: pointer;
+}
+button:disabled:hover {
+  cursor: not-allowed;
+}
+
+a {
+  color: #00afff;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.m-s,
+.m-top-s {
+  margin-top: 16px;
+}
+.m-s,
+.m-bottom-s {
+  margin-bottom: 16px;
+}
+.m-m,
+.m-top-m {
+  margin-top: 24px;
+}
+.m-m,
+.m-bottom-m {
+  margin-bottom: 24px;
+}
+.m-l,
+.m-top-l {
+  margin-top: 40px;
+}
+.m-l,
+.m-bottom-l {
+  margin-bottom: 40px;
+}
+
+.container-max-width {
+  max-width: 1240px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+.flex-container,
+.flex-container-centre,
+.menu ul {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.flex-container-centre {
+  justify-content: center;
+}
+
+.icon {
+  user-select: none;
+  width: 24px;
+  height: 24px;
+  font-size: 24px;
+}
+.icon.m {
+  width: 32px;
+  height: 32px;
+  font-size: 32px;
+}
+.icon.l {
+  width: 40px;
+  height: 40px;
+  font-size: 40px;
+}
+
+/* Class for hiding content (e.g. labels) from the screen in a way that can be
+ * read by screen readers. */
+.visually-hidden {
+  border: 0;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+}

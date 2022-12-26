@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en-CA">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <meta name="author" content="Devon McGrath" />
+    <meta name="description" content="Log in to Asset Tracker." />
+    <meta name="robots" content="noindex" />
+
+    <title>Login | Asset Tracker</title>
+
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        font-size: 100%;
+        background: white;
+        color: #32302f;
+      }
+      header,
+      main {
+        display: block;
+        font-size: 100%;
+        margin: 0;
+        padding: 0;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+          Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      }
+      h1 {
+        font-size: 20px;
+        font-weight: bold;
+        padding: 0;
+        margin: 0;
+      }
+      header {
+        padding: 16px;
+        background: #32302f;
+        color: white;
+        box-shadow: 0 0 3px 1px #114466;
+      }
+      main {
+        padding: 16px;
+      }
+    </style>
+
+    <script src="https://www.gstatic.com/firebasejs/9.2.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.2.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/ui/6.0.0/firebase-ui-auth.js"></script>
+    <script src="/js/firebase-config.js"></script>
+    <link
+      type="text/css"
+      rel="stylesheet"
+      href="https://www.gstatic.com/firebasejs/ui/6.0.0/firebase-ui-auth.css"
+    />
+    <script>
+      var app = firebase.initializeApp(FIREBASE_CONFIG);
+
+      // Initialize the FirebaseUI Widget using Firebase.
+      var ui = new firebaseui.auth.AuthUI(firebase.auth());
+
+      // Determine the redirect URL
+      var qs = window.location.href,
+        idx = qs.indexOf('?');
+      qs = idx < 0 ? '' : qs.slice(idx + 1);
+      var vals = {};
+      if (qs) {
+        var parts = qs.split('&'),
+          n = parts.length;
+        for (var i = 0; i < n; i++) {
+          var vparts = parts[i].split('=');
+          vparts[0] = decodeURIComponent(vparts[0]);
+          if (!vparts[0]) continue;
+          if (vparts[1]) vparts[1] = decodeURIComponent(vparts[1]);
+          vals[vparts[0]] = vparts[1];
+        }
+      }
+      if (!vals.to || vals.to === window.location.pathname) vals.to = '/';
+
+      // Create the config for the sign-in UI
+      var uiConfig = {
+        callbacks: {
+          signInSuccessWithAuthResult: function (authResult, redirectUrl) {
+            return true; // false for no redirect
+          },
+          uiShown: function () {
+            // The widget is rendered; hide the loader.
+            document.getElementById('loader').style.display = 'none';
+          }
+        },
+        signInFlow: 'popup',
+        signInSuccessUrl: vals.to,
+        signInOptions: [
+          firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+          firebase.auth.EmailAuthProvider.PROVIDER_ID
+        ]
+      };
+
+      // The start method will wait until the DOM is loaded.
+      ui.start('#firebaseui-auth-container', uiConfig);
+    </script>
+  </head>
+  <body>
+    <header>
+      <div class="content">
+        <h1>Login | Asset Tracker</h1>
+      </div>
+    </header>
+    <main role="main">
+      <div id="firebaseui-auth-container"></div>
+      <div id="loader">Loading...</div>
+    </main>
+  </body>
+</html>
