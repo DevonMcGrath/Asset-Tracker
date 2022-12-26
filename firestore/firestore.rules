@@ -1,0 +1,15 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+  
+    // Any authenticated user can manage their own data
+  	match /demos/asset-tracker/profiles/{userId}/{documents=**} {
+    	allow read, write, delete: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Disallow everything else
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
