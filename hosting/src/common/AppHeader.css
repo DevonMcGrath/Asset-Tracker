@@ -1,0 +1,42 @@
+.app-header-container {
+  padding: 16px;
+  background: #32302f;
+  color: white;
+  box-shadow: 0 0 3px 1px #114466;
+}
+
+.app-header {
+  align-items: center;
+}
+
+.app-header-link {
+  text-decoration: none;
+}
+
+.app-header-logo {
+  width: 24px;
+  height: 24px;
+}
+
+.app-header-title {
+  font-size: 20px;
+  font-weight: bold;
+  padding: 0;
+  margin: 0;
+}
+
+.app-header-profile-btn {
+  align-items: center;
+  padding: 0;
+  margin: 0;
+  font-size: 16px;
+  color: white;
+  text-decoration: none;
+}
+
+.app-header-profile-img {
+  width: 24px;
+  height: 24px;
+  background: none;
+  border: none;
+}

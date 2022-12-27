@@ -103,6 +103,15 @@ export class AppManager {
   }
 
   /**
+   * Gets the profile picture URL for the current user.
+   *
+   * @returns the profile picture URL.
+   */
+  public getProfilePic(): string {
+    return Settings.DEFAULT_PROFILE_PICTURE;
+  }
+
+  /**
    * Adds a size parameter to any Google user photo URL if there is no query
    * string part of the photo URL.
    *
