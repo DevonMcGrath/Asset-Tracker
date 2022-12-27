@@ -26,12 +26,14 @@
 }
 
 .app-header-profile-btn {
+  position: relative;
   align-items: center;
   padding: 0;
   margin: 0;
   font-size: 16px;
   color: white;
   text-decoration: none;
+  z-index: 1;
 }
 
 .app-header-profile-img {
@@ -39,4 +41,23 @@
   height: 24px;
   background: none;
   border: none;
+}
+
+.app-header-profile-info {
+  display: none;
+  position: absolute;
+  background: white;
+  color: #32302f;
+  border: 1px solid #a8a8a8;
+  border-radius: 8px;
+  padding: 16px;
+  right: 0;
+  top: 100%;
+  min-width: 100%;
+}
+
+.app-header-profile-btn:focus .app-header-profile-info,
+.app-header-profile-btn:hover .app-header-profile-info {
+  display: block;
+  cursor: default;
 }

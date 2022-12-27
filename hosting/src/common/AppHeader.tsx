@@ -1,9 +1,10 @@
 import React from 'react';
 import {Link} from 'react-router-dom';
-import {app} from '../data/AppManager';
+import {app, AppManager} from '../data/AppManager';
 import {Settings} from '../settings';
 
 import './AppHeader.css';
+import {Button} from './Button';
 
 export class AppHeader extends React.Component<{title?: string}, {}> {
   render(): React.ReactNode {
@@ -32,11 +33,11 @@ export class AppHeader extends React.Component<{title?: string}, {}> {
               {this.props.title || Settings.APP_NAME}
             </h1>
           </div>
-          <Link
-            to='/profile'
+          <div
             className='flex-container app-header-profile-btn'
-            title='View profile'
-            aria-label='View profile'
+            title='Profile info'
+            aria-label='Profile info'
+            tabIndex={0}
           >
             <span className='app-header-name'>{username}</span>
             <img
@@ -44,9 +45,19 @@ export class AppHeader extends React.Component<{title?: string}, {}> {
               src={app.getProfilePic()}
               alt='Profile pciture'
             />
-          </Link>
+            <div className='app-header-profile-info'>
+              <Button className='app-logout-btn' onClick={this.logout}>
+                Logout
+              </Button>
+            </div>
+          </div>
         </div>
       </header>
     );
+  }
+
+  private logout() {
+    app.logout();
+    AppManager.redirectToSignIn();
   }
 }
