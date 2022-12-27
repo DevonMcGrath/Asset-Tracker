@@ -1,7 +1,5 @@
 import {FirebaseApp, initializeApp} from 'firebase/app';
 import {getAuth, Auth, onAuthStateChanged, signOut, User} from 'firebase/auth';
-import {Functions, getFunctions} from 'firebase/functions';
-
 import {getFirestore, Firestore} from 'firebase/firestore';
 import {FIREBASE_CONFIG} from '../firebase-config';
 import {Settings} from '../settings';
@@ -16,8 +14,6 @@ export class AppManager {
 
   private db: Firestore;
 
-  private functions: Functions;
-
   private isAuthReady: boolean = false;
 
   private user: User | null = null;
@@ -30,9 +26,8 @@ export class AppManager {
     this.app = app;
     this.auth = getAuth(this.app);
     this.db = getFirestore();
-    this.functions = getFunctions(this.app);
     onAuthStateChanged(this.auth, (user) => {
-      if (!this.isAuthReady) this.isAuthReady = true;
+      this.isAuthReady = true;
       this.user = user;
       if (this.onAuthReady) this.onAuthReady(this, user);
     });
@@ -48,10 +43,6 @@ export class AppManager {
 
   public getFirestore(): Firestore {
     return this.db;
-  }
-
-  public getFunctions(): Functions {
-    return this.functions;
   }
 
   public getIsAuthReady(): boolean {
