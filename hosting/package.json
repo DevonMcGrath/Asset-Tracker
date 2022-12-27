@@ -26,7 +26,10 @@
     "deploy": "react-scripts build && firebase deploy --only hosting:dm-asset-tracker"
   },
   "jest": {
-    "coveragePathIgnorePatterns": ["src/index.tsx", "src/reportWebVitals.ts"]
+    "coveragePathIgnorePatterns": [
+      "src/index.tsx",
+      "src/reportWebVitals.ts"
+    ]
   },
   "eslintConfig": {
     "extends": [
