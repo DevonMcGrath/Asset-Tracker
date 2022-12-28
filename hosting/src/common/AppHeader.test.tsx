@@ -1,24 +1,20 @@
 import React from 'react';
-import {BrowserRouter} from 'react-router-dom';
 import {render, screen} from '@testing-library/react';
 import {User} from 'firebase/auth';
 import {AppHeader} from './AppHeader';
 import {Settings} from '../settings';
 import {app} from '../data/AppManager';
-
-function properRender(element: JSX.Element): JSX.Element {
-  return <BrowserRouter>{element}</BrowserRouter>;
-}
+import {wrapInRouter} from '../testing-utils';
 
 describe('AppHeader component', () => {
   test('renders app header', () => {
-    const {container} = render(properRender(<AppHeader />));
+    const {container} = render(wrapInRouter(<AppHeader />));
     expect(container.firstChild).toHaveClass('app-header-container');
     expect(container.firstChild?.nodeName).toEqual('HEADER');
   });
 
   test('renders links to home', () => {
-    const {container} = render(properRender(<AppHeader />));
+    const {container} = render(wrapInRouter(<AppHeader />));
 
     // Convert the links to an array
     const links = container.getElementsByTagName('a');
@@ -34,14 +30,14 @@ describe('AppHeader component', () => {
   });
 
   test('renders default title', () => {
-    render(properRender(<AppHeader />));
+    render(wrapInRouter(<AppHeader />));
     const titleElem = screen.getByText(Settings.APP_NAME);
     expect(titleElem).toBeInTheDocument();
   });
 
   test('renders with custom title', () => {
     const testTitle = 'Test Title 123';
-    render(properRender(<AppHeader title={testTitle} />));
+    render(wrapInRouter(<AppHeader title={testTitle} />));
     const titleElem = screen.getByText(testTitle);
     expect(titleElem).toBeInTheDocument();
   });
@@ -56,7 +52,7 @@ describe('AppHeader component', () => {
     });
 
     // Check that the name is rendered
-    render(properRender(<AppHeader />));
+    render(wrapInRouter(<AppHeader />));
     const nameElem = screen.getByText(name);
     expect(nameElem).toBeInTheDocument();
 
@@ -73,7 +69,7 @@ describe('AppHeader component', () => {
     });
 
     // Check that the name is rendered
-    render(properRender(<AppHeader />));
+    render(wrapInRouter(<AppHeader />));
     const nameElem = screen.getByText(email);
     expect(nameElem).toBeInTheDocument();
 
@@ -83,7 +79,7 @@ describe('AppHeader component', () => {
   test('logs out after clicking logout button', () => {
     // Render
     const spy = jest.spyOn(app, 'logout');
-    const {container} = render(properRender(<AppHeader />));
+    const {container} = render(wrapInRouter(<AppHeader />));
 
     // Find and click the button
     const logoutBtns = container.getElementsByClassName('app-logout-btn');

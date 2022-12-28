@@ -12,9 +12,7 @@ export class Button extends React.Component<
     disabled?: boolean;
     onClick?: (e: any, btn: Button) => void;
   },
-  {
-    disabled: boolean;
-  }
+  {}
 > {
   private icon?;
 
@@ -22,8 +20,6 @@ export class Button extends React.Component<
 
   constructor(props: any) {
     super(props);
-
-    this.state = {disabled: !!this.props.disabled};
 
     this.buttonClass = 'btn';
 
@@ -58,7 +54,7 @@ export class Button extends React.Component<
       <button
         className={this.buttonClass}
         onClick={this.handleClick}
-        disabled={this.state.disabled}
+        disabled={this.props.disabled}
         title={this.props.title}
         aria-label={this.props.title}
       >
