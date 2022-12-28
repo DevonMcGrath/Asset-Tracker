@@ -2,7 +2,7 @@ import React from 'react';
 import {render, screen} from '@testing-library/react';
 import {AuthenticatedLayout} from './AuthenticatedLayout';
 import {
-  generateProfile,
+  mockProfile,
   testForCorePageElements,
   wrapInRouter
 } from '../testing-utils';
@@ -10,7 +10,7 @@ import {app} from '../data/AppManager';
 
 describe('AuthenticatedLayout component', () => {
   test('renders an error page when not logged in', () => {
-    const profile = generateProfile(0);
+    const profile = mockProfile(0);
     testForCorePageElements(
       <AuthenticatedLayout profile={profile}></AuthenticatedLayout>
     );
@@ -29,7 +29,7 @@ describe('AuthenticatedLayout component', () => {
     });
 
     // Render
-    const profile = generateProfile(0);
+    const profile = mockProfile(0);
     render(
       wrapInRouter(
         <AuthenticatedLayout profile={profile}></AuthenticatedLayout>

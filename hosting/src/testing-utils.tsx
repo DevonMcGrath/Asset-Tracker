@@ -1,6 +1,7 @@
 import React from 'react';
 import {render} from '@testing-library/react';
 import {BrowserRouter} from 'react-router-dom';
+import {User, IdTokenResult} from 'firebase/auth';
 import {
   Account,
   AccountSubtype,
@@ -9,6 +10,30 @@ import {
   Transaction,
   TransactionType
 } from './models/profile';
+import {AppManager} from './data/AppManager';
+
+/**
+ * The `FirestoreStorageMock` class contains a simple storage mechanism to
+ * store Firestore Documents, with the ability to reset the storage.
+ */
+export class FirestoreStorageMock {
+  /**
+   * The data stored in the Firestore mock database.
+   */
+  public data: {[path: string]: any} = {};
+
+  /**
+   * Removes all data from the mock Firestore database.
+   */
+  public reset() {
+    this.data = {};
+  }
+}
+
+/**
+ * The mock Firestore database storage for testing.
+ */
+export const mockFirestore = new FirestoreStorageMock();
 
 /**
  * Wraps content that may need to be rendered as a descendant of a router.
@@ -32,12 +57,48 @@ export function testForCorePageElements(page: JSX.Element): HTMLElement {
 }
 
 /**
+ * Creates a fake user and makes the app manager act as if that user was logged
+ * in to the app.
+ * @param app the app manager that determines if the user is authenticated.
+ * @param callback the callback to perform tests in.
+ */
+export async function fakeAuth(
+  app: AppManager,
+  callback: (user: User) => Promise<void>
+): Promise<void> {
+  const user = mockUser();
+
+  // Create the mock return values
+  const isLoggedInSpy = jest.spyOn(app, 'isLoggedIn').mockImplementation(() => {
+    return true;
+  });
+  const getIsAuthReadySpy = jest
+    .spyOn(app, 'getIsAuthReady')
+    .mockImplementation(() => {
+      return true;
+    });
+  const getUserSpy = jest.spyOn(app, 'getUser').mockReturnValue(user);
+  const getUIDSpy = jest.spyOn(app, 'getUID').mockImplementation(() => {
+    return user.uid;
+  });
+
+  // Run the code in between
+  await callback(user);
+
+  // Restore everything
+  isLoggedInSpy.mockRestore();
+  getIsAuthReadySpy.mockRestore();
+  getUserSpy.mockRestore();
+  getUIDSpy.mockRestore();
+}
+
+/**
  * Selects an option from an array of options using `Math.random()`.
  * @param options the options to select from.
  * @returns one randomly selected option.
  */
 export function selectOne<T>(options: T[]): T {
-  return options[Math.round(Math.random() * options.length)];
+  return options[Math.floor(Math.random() * options.length)];
 }
 
 /**
@@ -62,10 +123,47 @@ export function generateID(chars: string, length: number) {
  * @param length the length of the Firestore ID to generate.
  * @returns the randomly generated Firestore ID.
  */
-export function generateFirestoreID(length: number = 20): string {
+export function mockFirestoreID(length: number = 20): string {
   const validChars =
     'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   return generateID(validChars, length);
+}
+
+/**
+ * Creates a random Firebase app user who is signed-in.
+ * @returns a user with a randomly generated ID.
+ */
+export function mockUser(): User {
+  const user: User = {
+    uid: mockFirestoreID(28),
+    displayName: selectOne(['Alice Xu', 'John Smith', 'Olivia Johnson']),
+    email: selectOne([
+      'email1@example.com',
+      'email56@example.com',
+      'email117@example.com'
+    ]),
+    emailVerified: true,
+    isAnonymous: false,
+    metadata: {},
+    phoneNumber: null,
+    photoURL: null,
+    providerData: [],
+    providerId: '123',
+    refreshToken: '123',
+    tenantId: 'abc',
+    delete: async () => {},
+    getIdToken: async () => {
+      return 'abc';
+    },
+    getIdTokenResult: async () => {
+      return {} as IdTokenResult;
+    },
+    reload: async () => {},
+    toJSON: () => {
+      return {};
+    }
+  };
+  return user;
 }
 
 /**
@@ -75,7 +173,7 @@ export function generateFirestoreID(length: number = 20): string {
  * @returns a randomly generated transaction based on the account type and
  * currency.
  */
-export function generateTransaction(
+export function mockTransaction(
   accountType: AccountType,
   accountCurrency: string
 ): Transaction {
@@ -144,7 +242,7 @@ export function generateTransaction(
  * @returns the randomly generated account with the specified number of
  * transactions.
  */
-export function generateAccount(transactions: number): Account {
+export function mockAccount(transactions: number): Account {
   // Determine account type/subtype
   const type: AccountType = selectOne([
     'bank',
@@ -162,7 +260,7 @@ export function generateAccount(transactions: number): Account {
   let account: Account = {
     created: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000),
     updated: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-    id: generateFirestoreID(28),
+    id: mockFirestoreID(28),
     name: selectOne(['Account 1', 'Account 2', 'Account 3']),
     institution: selectOne([
       'BMO',
@@ -180,7 +278,7 @@ export function generateAccount(transactions: number): Account {
 
   // Add the transactions
   for (let i = 0; i < transactions; i++) {
-    account.transactions.push(generateTransaction(type, account.currency));
+    account.transactions.push(mockTransaction(type, account.currency));
   }
   account.transactions = account.transactions.sort((a, b) =>
     a.timestamp.valueOf() < b.timestamp.valueOf() ? -1 : 1
@@ -197,7 +295,7 @@ export function generateAccount(transactions: number): Account {
  * (only applies when the `accounts` is a number).
  * @returns the randomly generated profile.
  */
-export function generateProfile(
+export function mockProfile(
   accounts: number | Account[],
   transactions: number = 100
 ): AssetTrackerProfile {
@@ -218,7 +316,7 @@ export function generateProfile(
   let profile: AssetTrackerProfile = {
     created: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
     updated: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
-    id: generateFirestoreID(),
+    id: mockFirestoreID(),
     owner: selectOne(owners)
   };
 
@@ -235,7 +333,7 @@ export function generateProfile(
   else if (typeof accounts === 'number' && accounts > 0) {
     profile.accounts = {};
     for (let i = 0; i < accounts; i++) {
-      const account = generateAccount(Math.round(Math.random() * transactions));
+      const account = mockAccount(Math.round(Math.random() * transactions));
       profile.accounts[account.id] = account;
     }
   }
