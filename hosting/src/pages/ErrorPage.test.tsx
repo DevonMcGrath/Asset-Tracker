@@ -5,7 +5,7 @@ import {testForCorePageElements, wrapInRouter} from '../testing-utils';
 
 describe('ErrorPage component', () => {
   test('renders an error page', () => {
-    testForCorePageElements(<ErrorPage></ErrorPage>);
+    testForCorePageElements(<ErrorPage></ErrorPage>, ErrorPage.PAGE_ID);
     expect(screen.getByText(/^Error$/)).toBeInTheDocument();
     expect(screen.getByText(ErrorPage.DEFAULT_ERROR)).toBeInTheDocument();
   });

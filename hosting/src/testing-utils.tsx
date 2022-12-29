@@ -49,10 +49,17 @@ export function wrapInRouter(content: any): JSX.Element {
  * @param page the page element to check.
  * @returns the container element of the rendered page.
  */
-export function testForCorePageElements(page: JSX.Element): HTMLElement {
+export function testForCorePageElements(
+  page: JSX.Element,
+  pageID?: string
+): HTMLElement {
   const {container} = render(wrapInRouter(page));
   expect(container.getElementsByClassName('app-header').length).toEqual(1);
   expect(container.getElementsByClassName('app-body').length).toEqual(1);
+  if (pageID) {
+    expect(container.firstChild).toHaveClass('app-page');
+    expect(container.firstChild).toHaveAttribute('data-page', pageID);
+  }
   return container;
 }
 
@@ -81,6 +88,13 @@ export async function fakeAuth(
   const getUIDSpy = jest.spyOn(app, 'getUID').mockImplementation(() => {
     return user.uid;
   });
+  const setOnAuthReadySpy = jest
+    .spyOn(app, 'setOnAuthReady')
+    .mockImplementation(
+      (onAuthReady?: (app: AppManager, user: User | null) => void) => {
+        if (onAuthReady) onAuthReady(app, user);
+      }
+    );
 
   // Run the code in between
   await callback(user);
@@ -90,6 +104,7 @@ export async function fakeAuth(
   getIsAuthReadySpy.mockRestore();
   getUserSpy.mockRestore();
   getUIDSpy.mockRestore();
+  setOnAuthReadySpy.mockRestore();
 }
 
 /**

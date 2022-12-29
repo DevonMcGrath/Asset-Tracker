@@ -2,11 +2,24 @@ import React from 'react';
 import {render, screen} from '@testing-library/react';
 import {AuthenticatedLayout} from './AuthenticatedLayout';
 import {
+  fakeAuth,
   mockProfile,
   testForCorePageElements,
   wrapInRouter
 } from '../testing-utils';
 import {app} from '../data/AppManager';
+import {ErrorPage} from './ErrorPage';
+
+/**
+ * Checks that the rendered content does not contain an error page.
+ */
+function expectNoErrorPage(container: HTMLElement) {
+  const pages = container.getElementsByClassName('app-page');
+  expect(pages.length).toBeLessThanOrEqual(1);
+  if (pages.length) {
+    expect(pages.item(0)).not.toHaveAttribute('data-page', ErrorPage.PAGE_ID);
+  }
+}
 
 describe('AuthenticatedLayout component', () => {
   test('renders an error page when not logged in', () => {
@@ -23,30 +36,32 @@ describe('AuthenticatedLayout component', () => {
   });
 
   test('does not render an error page when logged in', () => {
-    // Create a mock implementation for the user
-    const spy = jest.spyOn(app, 'isLoggedIn').mockImplementation(() => {
-      return true;
+    fakeAuth(app, async () => {
+      // Render
+      const profile = mockProfile(1);
+      const {container} = render(
+        wrapInRouter(
+          <AuthenticatedLayout profile={profile}></AuthenticatedLayout>
+        )
+      );
+
+      // Ensure the error page isn't rendered
+      expectNoErrorPage(container);
     });
+  });
 
-    // Render
-    const profile = mockProfile(0);
-    render(
-      wrapInRouter(
-        <AuthenticatedLayout profile={profile}></AuthenticatedLayout>
-      )
-    );
+  test('renders a profile when there are no accounts', () => {
+    fakeAuth(app, async () => {
+      // Render
+      const profile = mockProfile(0);
+      const {container} = render(
+        wrapInRouter(
+          <AuthenticatedLayout profile={profile}></AuthenticatedLayout>
+        )
+      );
 
-    // Ensure the error page isn't rendered
-    function createCheck(text: string) {
-      return function () {
-        screen.getByText(text);
-      };
-    }
-    expect(
-      createCheck(AuthenticatedLayout.NOT_LOGGED_IN_ERROR_TITLE)
-    ).toThrowError();
-    expect(createCheck(AuthenticatedLayout.NOT_LOGGED_IN_ERROR)).toThrowError();
-
-    spy.mockRestore();
+      // Ensure the error page isn't rendered
+      expectNoErrorPage(container);
+    });
   });
 });
