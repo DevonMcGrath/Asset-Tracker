@@ -1,5 +1,5 @@
 import React from 'react';
-import {render} from '@testing-library/react';
+import {act, render} from '@testing-library/react';
 import {BrowserRouter} from 'react-router-dom';
 import {User, IdTokenResult} from 'firebase/auth';
 import {
@@ -28,6 +28,43 @@ export class FirestoreStorageMock {
   public reset() {
     this.data = {};
   }
+
+  /**
+   * Sets the data for a document to undefined if no data is specified, or to
+   * the object specified.
+   * @param reference the reference to the document.
+   * @param data the data in the document.
+   * @returns a reference to this firestore storage mock instance.
+   */
+  public set<T extends {path: string}>(
+    reference: T,
+    data?: any
+  ): FirestoreStorageMock {
+    const path = reference.path;
+
+    // Delete the data
+    if (!data) {
+      if (this.data[path]) {
+        delete this.data[path];
+      }
+    }
+
+    // Set the data
+    else if (typeof data === 'object') {
+      this.data[path] = data;
+    }
+
+    return this;
+  }
+
+  /**
+   * Gets a document from storage.
+   * @param reference the reference to the document.
+   * @returns the document or undefined if it does not exist.
+   */
+  public get<T extends {path: string}>(reference: T): any {
+    return this.data[reference.path];
+  }
 }
 
 /**
@@ -45,6 +82,21 @@ export function wrapInRouter(content: any): JSX.Element {
 }
 
 /**
+ * Checks if an element is an app page with a specific `data-page` attribute
+ * value.
+ * @param appPageElement the element to test.
+ * @param id the page ID that the element should have.
+ */
+export function expectPageID(
+  appPageElement: HTMLElement | ChildNode | Element | null,
+  id: string
+) {
+  expect(appPageElement).not.toBeNull();
+  expect(appPageElement).toHaveClass('app-page');
+  expect(appPageElement).toHaveAttribute('data-page', id);
+}
+
+/**
  * Tests that a page renders with the header and body of the page.
  * @param page the page element to check.
  * @returns the container element of the rendered page.
@@ -57,10 +109,46 @@ export function testForCorePageElements(
   expect(container.getElementsByClassName('app-header').length).toEqual(1);
   expect(container.getElementsByClassName('app-body').length).toEqual(1);
   if (pageID) {
-    expect(container.firstChild).toHaveClass('app-page');
-    expect(container.firstChild).toHaveAttribute('data-page', pageID);
+    expectPageID(container.firstChild, pageID);
   }
   return container;
+}
+
+/**
+ * Checks that a container has links to the specified URLs.
+ * @param container the container to check.
+ * @param links the links the container should contain.
+ */
+export function expectToHaveLinks(
+  container: HTMLElement | null,
+  links: string[]
+) {
+  // Get the links
+  const arefs = container?.getElementsByTagName('a');
+  const n = arefs?.length || 0;
+  const containerLinks: string[] = [];
+  for (let i = 0; i < n; i++) {
+    containerLinks.push(arefs?.item(i)?.getAttribute('href') || '');
+  }
+
+  // Check each of them
+  links.forEach((link) => expect(containerLinks).toContain(link));
+}
+
+/**
+ * Simulates a click event on an element.
+ * @param element the element to click.
+ * @returns true if a click mouse event was dispatched, false otherwise.
+ */
+export async function click(
+  element: HTMLElement | ChildNode | Element | null
+): Promise<boolean> {
+  if (!element) return false;
+  await act(async () => {
+    element.dispatchEvent(new MouseEvent('click', {bubbles: true}));
+    await new Promise(process.nextTick);
+  });
+  return true;
 }
 
 /**
@@ -105,6 +193,24 @@ export async function fakeAuth(
   getUserSpy.mockRestore();
   getUIDSpy.mockRestore();
   setOnAuthReadySpy.mockRestore();
+}
+
+/**
+ * Creates a fake console temporarily so output to the console is silent.
+ * @param callback the code to execute while the console is silent.
+ */
+export async function fakeConsole(callback: () => Promise<void>) {
+  // Mock the main methods
+  const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+  const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+  const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+  await callback();
+
+  // Restore everything
+  logSpy.mockRestore();
+  warnSpy.mockRestore();
+  errorSpy.mockRestore();
 }
 
 /**
@@ -193,7 +299,9 @@ export function mockTransaction(
   accountCurrency: string
 ): Transaction {
   const timestamp = new Date(
-    Date.now() - Math.round(2 + Math.random() * 2) * 24 * 60 * 60 * 1000
+    Date.now() -
+      2 * 24 * 60 * 60 * 1000 -
+      Math.round(Math.random() * 2 * 24 * 60 * 60 * 1000)
   );
   const amount = 10 + Math.round(Math.random() * 10000 * 100) / 100.0;
 
@@ -206,6 +314,7 @@ export function mockTransaction(
     ] as TransactionType[]);
     return {
       timestamp,
+      updated: new Date(),
       type,
       amount,
       currency: accountCurrency,
@@ -236,6 +345,7 @@ export function mockTransaction(
   // Build the transaction
   let transaction: Transaction = {
     timestamp,
+    updated: new Date(),
     type,
     currency: selectOne([
       accountCurrency,
@@ -272,9 +382,12 @@ export function mockAccount(transactions: number): Account {
   }
 
   // Create basic account
+  const created = new Date(Date.now() - 4 * 24 * 60 * 60 * 1000);
   let account: Account = {
-    created: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000),
-    updated: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+    created,
+    updated: new Date(
+      created.valueOf() + Math.round(Math.random() * 4 * 24 * 60 * 60 * 1000)
+    ),
     id: mockFirestoreID(28),
     name: selectOne(['Account 1', 'Account 2', 'Account 3']),
     institution: selectOne([
@@ -332,12 +445,12 @@ export function mockProfile(
     created: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
     updated: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
     id: mockFirestoreID(),
-    owner: selectOne(owners)
+    owner: selectOne(owners),
+    accounts: {}
   };
 
   // Array of accounts
   if (Array.isArray(accounts) && accounts.length > 0) {
-    profile.accounts = {};
     for (let i = 0; i < accounts.length; i++) {
       const account = accounts[i];
       profile.accounts[account.id] = account;
@@ -346,7 +459,6 @@ export function mockProfile(
 
   // Number of accounts
   else if (typeof accounts === 'number' && accounts > 0) {
-    profile.accounts = {};
     for (let i = 0; i < accounts; i++) {
       const account = mockAccount(Math.round(Math.random() * transactions));
       profile.accounts[account.id] = account;

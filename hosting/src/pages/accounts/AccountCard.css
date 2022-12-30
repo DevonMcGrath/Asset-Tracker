@@ -1,0 +1,14 @@
+.account-card {
+  position: relative;
+  display: block;
+  padding: 16px;
+  margin: 24px 0;
+  border: 1px solid #c8c8c8;
+  border-radius: 8px;
+  font-size: 16px;
+  text-decoration: none;
+  color: #32302f;
+}
+.account-card:hover {
+  background: #efefef;
+}

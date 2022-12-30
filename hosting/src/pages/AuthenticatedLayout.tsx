@@ -37,6 +37,11 @@ export class AuthenticatedLayout extends React.Component<
   public static readonly NOT_FOUND_ERROR =
     'The page you are looking for does not exist.';
 
+  constructor(props: any) {
+    super(props);
+    this.rerender = this.rerender.bind(this);
+  }
+
   render(): React.ReactNode {
     if (!app.isLoggedIn()) {
       return AuthenticatedLayout.getNotLoggedInPage();
@@ -54,8 +59,11 @@ export class AuthenticatedLayout extends React.Component<
     return (
       <Routes>
         <Route path='/' element={<HomePage profile={profile} />} />
-        <Route path='/accounts' element={<AccountsPage profile={profile} />} />
-        {Object.keys(profile.accounts || {}).map((accountID) => {
+        <Route
+          path='/accounts'
+          element={<AccountsPage profile={profile} rerender={this.rerender} />}
+        />
+        {Object.keys(profile.accounts).map((accountID) => {
           return (
             <Route
               key={accountID}
@@ -67,6 +75,10 @@ export class AuthenticatedLayout extends React.Component<
         <Route path='*' element={AuthenticatedLayout.get404Page()} />
       </Routes>
     );
+  }
+
+  private rerender() {
+    this.forceUpdate();
   }
 
   public static getNotLoggedInPage(): JSX.Element {

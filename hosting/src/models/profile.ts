@@ -7,7 +7,7 @@ export interface AssetTrackerProfile {
     email: string;
     photoURL?: string;
   };
-  accounts?: {
+  accounts: {
     [accountID: string]: Account;
   };
 }
@@ -38,6 +38,7 @@ export type TransactionType = 'purchase' | 'sale' | 'withdrawal' | 'deposit';
 
 export interface Transaction {
   timestamp: Date;
+  updated: Date;
   type: TransactionType;
   amount: number;
   currency: string;

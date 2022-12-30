@@ -1,6 +1,7 @@
 import React from 'react';
 import {render, screen} from '@testing-library/react';
 import {AppBody} from './AppBody';
+import {wrapInRouter} from '../testing-utils';
 
 describe('AppBody component', () => {
   test('renders app body', () => {
@@ -29,5 +30,18 @@ describe('AppBody component', () => {
     const testClass = 'test-class-name-123';
     const {container} = render(<AppBody className={testClass} />);
     expect(container.firstChild).toHaveClass(testClass);
+  });
+
+  test('renders links to go back', () => {
+    const link = '/test-link';
+    const linkTitle = 'This is a test link.';
+    render(
+      wrapInRouter(<AppBody backTitle={linkTitle} backTitleLink={link} />)
+    );
+
+    // Check for link
+    const linkElem = screen.getByText(linkTitle);
+    expect(linkElem).toBeInTheDocument();
+    expect(linkElem).toHaveAttribute('href', link);
   });
 });

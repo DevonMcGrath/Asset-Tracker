@@ -1,10 +1,16 @@
 import React from 'react';
+import {Link} from 'react-router-dom';
+
+import './AppBody.css';
+import {Icon} from './Icon';
 
 export class AppBody extends React.Component<
   {
     noMaxWidth?: boolean;
     className?: string;
     children?: any;
+    backTitle?: string;
+    backTitleLink?: string;
   },
   {}
 > {
@@ -16,6 +22,23 @@ export class AppBody extends React.Component<
     if (this.props.className) {
       c += ' ' + this.props.className;
     }
-    return <main className={c}>{this.props.children}</main>;
+    let title = null;
+    if (this.props.backTitle && this.props.backTitleLink) {
+      title = (
+        <Link
+          className='app-body-back-title main-link'
+          to={this.props.backTitleLink}
+        >
+          <Icon>arrow_back_ios</Icon>
+          {this.props.backTitle}
+        </Link>
+      );
+    }
+    return (
+      <main className={c}>
+        {title}
+        {this.props.children}
+      </main>
+    );
   }
 }

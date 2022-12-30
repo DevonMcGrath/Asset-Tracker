@@ -1,0 +1,58 @@
+.fieldset {
+  display: flex;
+  gap: 16px;
+  justify-content: flex-start;
+  align-items: flex-end;
+  align-content: flex-start;
+  flex-wrap: wrap;
+  position: relative;
+}
+
+.field {
+  max-width: 100%;
+}
+
+.field label {
+  display: block;
+  font-weight: bold;
+  padding: 0;
+  margin: 0 0 4px 0;
+}
+.field .input {
+  width: 100%;
+}
+
+.field.small {
+  width: 117px;
+}
+.field.medium {
+  width: 250px;
+}
+.field.large {
+  width: 516px;
+}
+
+.input {
+  font-size: 14px;
+  border: 1px solid #c8c8c8;
+  border-radius: 4px;
+  background-color: white;
+  color: black;
+  margin: 0;
+  padding: 12px;
+}
+select.input {
+  padding-right: 24px;
+}
+.input:disabled {
+  background: #efefef;
+  cursor: not-allowed;
+}
+
+@media only screen and (max-width: 481px) {
+  .field.small,
+  .field.medium,
+  .field.large {
+    width: 100%;
+  }
+}

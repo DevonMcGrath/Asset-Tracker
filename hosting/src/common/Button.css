@@ -3,8 +3,10 @@
   font-size: 14px;
   font-weight: bold;
   text-transform: uppercase;
+  text-decoration: none;
   user-select: none;
   padding: 16px;
+  margin: 0;
   min-height: 30px;
   min-width: 50px;
   background: white;
@@ -12,9 +14,8 @@
   border: 2px solid #32302f;
   border-radius: 24px;
 }
-.btn:focus {
-}
 .btn:active {
+  margin-bottom: 1px;
   border-top-width: 1px;
   transform: translateY(1px);
 }
@@ -26,6 +27,7 @@
   color: rgb(170, 170, 170);
 }
 .btn:disabled:active {
+  margin-bottom: 0;
   border-top-width: 2px;
   transform: none;
 }

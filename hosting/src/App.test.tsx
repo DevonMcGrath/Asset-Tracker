@@ -1,5 +1,5 @@
 import React from 'react';
-import {act, render, screen} from '@testing-library/react';
+import {act, render} from '@testing-library/react';
 import App from './App';
 import {app, AppManager} from './data/AppManager';
 import {fakeAuth, wrapInRouter} from './testing-utils';
@@ -17,7 +17,7 @@ describe('App component', () => {
   });
 
   test('renders authenticated layout when logged in', () => {
-    fakeAuth(app, async (user) => {
+    fakeAuth(app, async () => {
       const spy = jest.spyOn(AppManager, 'redirectToSignIn');
       let elem = wrapInRouter(<App />);
       await act(async () => {

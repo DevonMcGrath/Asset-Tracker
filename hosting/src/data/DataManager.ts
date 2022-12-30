@@ -1,5 +1,4 @@
 import {
-  getFirestore,
   collection,
   doc,
   setDoc,
@@ -7,22 +6,14 @@ import {
   getDocs,
   query,
   serverTimestamp,
-  where,
-  onSnapshot,
-  Firestore,
   CollectionReference,
   DocumentData,
   DocumentReference,
   updateDoc,
-  Unsubscribe,
-  DocumentSnapshot,
-  orderBy,
-  QuerySnapshot,
   addDoc,
-  deleteDoc,
-  limit
+  deleteDoc
 } from 'firebase/firestore';
-import {Account, AssetTrackerProfile} from '../models/profile';
+import {Account, AssetTrackerProfile, Transaction} from '../models/profile';
 import {Settings} from '../settings';
 import {app, AppManager} from './AppManager';
 import {convertTimestamps} from './firebase-helpers';
@@ -91,6 +82,16 @@ export class DataManager {
   }
 
   /**
+   * Creates a Firestore document reference to an account with a specific ID.
+   * @param id the account ID.
+   * @returns the document reference to the specified account.
+   * @see {@link DataManager.doc}
+   */
+  public getAccountDoc(id: string): DocumentReference<DocumentData> {
+    return this.doc([DataManager.ACCOUNTS_COLLECTION, id]);
+  }
+
+  /**
    * Creates a new Asset Tracker profile for the current user, if one does not
    * already exist.
    * @returns the profile document, not including account or other information.
@@ -145,6 +146,7 @@ export class DataManager {
     // Base profile data
     let profile = profileDoc.data() as AssetTrackerProfile;
     convertTimestamps(profile);
+    profile.accounts = {};
 
     // Get account info
     const accountsColRef = this.collection([DataManager.ACCOUNTS_COLLECTION]);
@@ -154,13 +156,120 @@ export class DataManager {
       const data = doc.data() as Account;
       data.id = doc.id;
       convertTimestamps(data);
-      if (!profile.accounts) {
-        profile.accounts = {};
-      }
       profile.accounts[data.id] = data;
     });
 
     return profile;
+  }
+
+  /**
+   * Adds a new account to the user's profile, then updates the provided
+   * profile and account in place.
+   * @param profile the profile to update with the new account.
+   * @param account the default account info.
+   * @returns the created account.
+   */
+  public async addAccount(
+    profile: AssetTrackerProfile,
+    account: Account
+  ): Promise<Account> {
+    // Build the data
+    const accountsColRef = this.collection([DataManager.ACCOUNTS_COLLECTION]);
+    const data: any = {
+      ...account,
+      created: serverTimestamp(),
+      updated: serverTimestamp()
+    };
+    delete data.id;
+
+    // Add the document
+    const doc = await addDoc(accountsColRef, data);
+
+    // Update the objects in place
+    account.id = doc.id;
+    account.created = new Date();
+    account.updated = new Date(account.created.valueOf());
+    profile.accounts[account.id] = account;
+
+    return account;
+  }
+
+  /**
+   * Updates all account properties (excluding `transactions` and `created`) on
+   * the Firestore document. Sets the `updated` date on success.
+   * @param account the updated account.
+   * @throws an error if (1) the account has no ID, (2) the user is not logged
+   * in, or (3) there is a server-side Firestore error.
+   */
+  public async updateAccountInfo(account: Account): Promise<void> {
+    if (!account.id) {
+      throw new Error('The account has no ID.');
+    }
+
+    // Update the core elements
+    const data = {
+      updated: serverTimestamp(),
+      name: account.name,
+      type: account.type,
+      subtype: account.subtype,
+      institution: account.institution,
+      currency: account.currency
+    };
+    await updateDoc(this.getAccountDoc(account.id), data);
+    account.updated = new Date();
+  }
+
+  /**
+   * Deletes an account from the user's profile, then updates the provided
+   * profile in place.
+   * @param profile the profile to remove the aacount from.
+   * @param account the account to delete.
+   */
+  public async deleteAccount(profile: AssetTrackerProfile, account: Account) {
+    if (!account.id) {
+      throw new Error('The account has no ID.');
+    }
+
+    // Delete the account
+    await deleteDoc(this.getAccountDoc(account.id));
+    delete profile.accounts[account.id];
+  }
+
+  /**
+   * Creates an exact copy of a transaction.
+   * @param transaction the transaction to clone.
+   * @returns a cloned version of the transaction.
+   */
+  public static cloneTransaction(transaction: Transaction): Transaction {
+    return {
+      timestamp: new Date(transaction.timestamp.valueOf()),
+      updated: new Date(transaction.updated.valueOf()),
+      type: transaction.type,
+      amount: transaction.amount,
+      currency: transaction.currency,
+      assetName: transaction.assetName,
+      assetQuantity: transaction.assetQuantity,
+      note: transaction.note
+    };
+  }
+
+  /**
+   * Creates an exact copy, deep-clone of an account.
+   * @param account the account to clone.
+   * @returns a cloned version of the account.
+   */
+  public static cloneAccount(account: Account): Account {
+    return {
+      created: new Date(account.created.valueOf()),
+      updated: new Date(account.updated.valueOf()),
+      id: account.id,
+      currency: account.currency,
+      institution: account.institution,
+      name: account.name,
+      type: account.type,
+      subtype: account.subtype,
+      transactions: account.transactions.map(DataManager.cloneTransaction)
+    };
   }
 }
 

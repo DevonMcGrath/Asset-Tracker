@@ -208,12 +208,12 @@ jest.mock('firebase/firestore', () => {
 
     setDoc: <T>(reference: DocumentReference<T>, data: any) => {
       if (!data || typeof data !== 'object') data = {};
-      mockFirestore.data[reference.path] = data;
+      mockFirestore.set(reference, data);
     },
 
     updateDoc: <T>(reference: DocumentReference<T>, data: any) => {
       if (!data || typeof data !== 'object') return;
-      let doc = mockFirestore.data[reference.path];
+      let doc = mockFirestore.get(reference);
       if (!doc) throw new Error(`The path ${reference.path} does not exist.`);
       for (const field in data) {
         doc[field] = data[field];
@@ -228,11 +228,11 @@ jest.mock('firebase/firestore', () => {
           isEqual: () => false
         },
         data: () => {
-          const doc = mockFirestore.data[reference.path];
+          const doc = mockFirestore.get(reference);
           return doc ? (doc as T) : undefined;
         },
         exists: () => {
-          return mockFirestore.data[reference.path] !== undefined;
+          return mockFirestore.get(reference) !== undefined;
         },
         get: () => {},
         id: reference.id,
@@ -257,6 +257,12 @@ jest.mock('firebase/firestore', () => {
         size: 0
       };
       return result;
-    }
+    },
+
+    deleteDoc: async (reference: DocumentReference<unknown>) => {
+      mockFirestore.set(reference, undefined);
+    },
+
+    serverTimestamp: () => new Date()
   };
 });
