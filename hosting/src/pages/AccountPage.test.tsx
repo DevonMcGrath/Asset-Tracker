@@ -4,6 +4,7 @@ import {
   fakeAuth,
   mockFirestore,
   mockProfile,
+  mockTransaction,
   testForCorePageElements
 } from '../testing-utils';
 import {ErrorPage} from './ErrorPage';
@@ -72,6 +73,34 @@ describe('AccountPage component', () => {
       await click(btns.item(0));
       expect(mockFirestore.get(accountDocRef)).not.toBeDefined();
       expect(window.location.replace).toBeCalledTimes(1);
+    });
+  });
+
+  test('deletes a transaction', async () => {
+    await fakeAuth(app, async () => {
+      // Set up the data
+      const profile = mockProfile(1);
+      const accountID = Object.keys(profile.accounts)[0];
+      const account = profile.accounts[accountID];
+      account.transactions = [mockTransaction(account.type, account.currency)];
+      const accountDocRef = dataManager.getAccountDoc(accountID);
+      mockFirestore.set(accountDocRef, account);
+      expect(mockFirestore.get(accountDocRef)).toStrictEqual(account);
+
+      // Render the page
+      const container = testForCorePageElements(
+        <AccountPage profile={profile} id={accountID} />,
+        AccountPage.PAGE_ID
+      );
+
+      // Find the delete transaction button and click it
+      const btns = container.getElementsByClassName(
+        'transaction-card-delete-btn'
+      );
+      const updatedBefore = account.updated.valueOf();
+      await click(btns.item(0));
+      expect(account.transactions.length).toEqual(0);
+      expect(account.updated.valueOf()).not.toEqual(updatedBefore);
     });
   });
 });

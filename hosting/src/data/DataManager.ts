@@ -156,6 +156,7 @@ export class DataManager {
       const data = doc.data() as Account;
       data.id = doc.id;
       convertTimestamps(data);
+      DataManager.sortTransactions(data.transactions);
       profile.accounts[data.id] = data;
     });
 
@@ -175,6 +176,7 @@ export class DataManager {
   ): Promise<Account> {
     // Build the data
     const accountsColRef = this.collection([DataManager.ACCOUNTS_COLLECTION]);
+    DataManager.sortTransactions(account.transactions);
     const data: any = {
       ...account,
       created: serverTimestamp(),
@@ -214,6 +216,27 @@ export class DataManager {
       subtype: account.subtype,
       institution: account.institution,
       currency: account.currency
+    };
+    await updateDoc(this.getAccountDoc(account.id), data);
+    account.updated = new Date();
+  }
+
+  /**
+   * Updates the transactions and updated timestamp on the Firestore document.
+   * Sets the `updated` date on success.
+   * @param account the account with the updated transactions.
+   * @throws an error if (1) the account has no ID, (2) the user is not logged
+   * in, or (3) there is a server-side Firestore error.
+   */
+  public async updateAccountTransactions(account: Account): Promise<void> {
+    if (!account.id) {
+      throw new Error('The account has no ID.');
+    }
+
+    // Update the document in Firestore
+    const data = {
+      updated: serverTimestamp(),
+      transactions: DataManager.sortTransactions(account.transactions)
     };
     await updateDoc(this.getAccountDoc(account.id), data);
     account.updated = new Date();
@@ -270,6 +293,17 @@ export class DataManager {
       subtype: account.subtype,
       transactions: account.transactions.map(DataManager.cloneTransaction)
     };
+  }
+
+  /**
+   * Sorts an array of transaction, in place.
+   * @param transactions the transactions to sort.
+   * @returns the sorted array of transactions.
+   */
+  public static sortTransactions(transactions: Transaction[]): Transaction[] {
+    return transactions.sort((a, b) =>
+      a.timestamp.valueOf() < b.timestamp.valueOf() ? 1 : -1
+    );
   }
 }
 

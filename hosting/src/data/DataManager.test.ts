@@ -171,6 +171,38 @@ describe('DataManager class', () => {
     });
   });
 
+  test('updates account document transactions', () => {
+    fakeAuth(app, async () => {
+      // Set up the data
+      const profile = mockProfile(1);
+      const accountID = Object.keys(profile.accounts)[0];
+      const account = profile.accounts[accountID];
+      account.transactions = [];
+      mockFirestore.set(dataManager.getAccountDoc(accountID), account);
+      const originalUpdated = account.updated.valueOf();
+
+      // Update the document
+      await dataManager.updateAccountTransactions(account);
+      expect(account.updated.valueOf()).not.toEqual(originalUpdated);
+    });
+  });
+
+  test('fails to update account with no ID', () => {
+    fakeAuth(app, async () => {
+      // Set up the data
+      const profile = mockProfile(1);
+      const accountID = Object.keys(profile.accounts)[0];
+      let account = profile.accounts[accountID];
+      mockFirestore.set(dataManager.getAccountDoc(accountID), account);
+      account.id = '';
+
+      try {
+        await dataManager.updateAccountTransactions(account);
+        fail('The update account transactions call did not fail.');
+      } catch (e) {}
+    });
+  });
+
   test('deletes an account', () => {
     fakeAuth(app, async () => {
       // Set up the data
@@ -201,5 +233,21 @@ describe('DataManager class', () => {
         fail('The delete account call did not fail.');
       } catch (e) {}
     });
+  });
+
+  test('sorts an array of transactions by timestamp desc', () => {
+    // Create mock data
+    const transactionA = mockTransaction('investment', 'CAD'); // oldest
+    const transactionB = mockTransaction('investment', 'CAD'); // newest
+    const transactionC = mockTransaction('investment', 'CAD');
+    transactionB.timestamp = new Date(transactionA.timestamp.valueOf() + 1000);
+    transactionC.timestamp = new Date(transactionA.timestamp.valueOf() + 500);
+    const transactions = [transactionA, transactionB, transactionC];
+
+    // Sort and check the result
+    DataManager.sortTransactions(transactions);
+    expect(transactions[0]).toStrictEqual(transactionB);
+    expect(transactions[1]).toStrictEqual(transactionC);
+    expect(transactions[2]).toStrictEqual(transactionA);
   });
 });

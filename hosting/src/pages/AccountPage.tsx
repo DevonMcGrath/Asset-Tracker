@@ -5,7 +5,7 @@ import {AppHeader} from '../common/AppHeader';
 import {Button} from '../common/Button';
 import {ButtonGroup} from '../common/ButtonGroup';
 import {dataManager} from '../data/DataManager';
-import {Account, AssetTrackerProfile} from '../models/profile';
+import {Account, AssetTrackerProfile, Transaction} from '../models/profile';
 import {AccountInfo} from './accounts/AccountInfo';
 import {ErrorPage} from './ErrorPage';
 import {Page} from './Page';
@@ -24,6 +24,7 @@ export class AccountPage extends React.Component<
     };
     this.handleDeleteAccount = this.handleDeleteAccount.bind(this);
     this.handleUpdateAccountInfo = this.handleUpdateAccountInfo.bind(this);
+    this.handleDeleteTransaction = this.handleDeleteTransaction.bind(this);
   }
 
   render(): React.ReactNode {
@@ -85,6 +86,7 @@ export class AccountPage extends React.Component<
                 <TransactionCard
                   key={transaction.updated.valueOf() + '-' + idx}
                   transaction={transaction}
+                  onDelete={this.handleDeleteTransaction}
                 />
               );
             })}
@@ -105,6 +107,17 @@ export class AccountPage extends React.Component<
     await dataManager.updateAccountInfo(account);
     let profile = this.props.profile;
     profile.accounts[account.id] = account;
+    this.setState({updated: Date.now()});
+  }
+
+  private async handleDeleteTransaction(transaction: Transaction) {
+    const id = this.props.id;
+    const profile = this.props.profile;
+    const account = profile.accounts[id];
+    account.transactions = account.transactions.filter(
+      (a) => a !== transaction
+    );
+    await dataManager.updateAccountTransactions(account);
     this.setState({updated: Date.now()});
   }
 }
