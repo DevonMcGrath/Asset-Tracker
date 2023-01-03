@@ -29,3 +29,29 @@ export function getByProperty<T>(
   }
   return null;
 }
+
+/**
+ * Formats a number with a specific number of decimal places.
+ * @param v the number to format.
+ * @param decimalPlaces the number of decimal places to include.
+ * @returns the number, formatted to the specified number of decimal places.
+ */
+export function formatAsFloat(v: number, decimalPlaces: number = 3): string {
+  if (isNaN(v)) return 'NaN';
+  if (decimalPlaces < 1) return Math.round(v).toLocaleString();
+  let decimalPart = '' + Math.round((v % 1) * Math.pow(10, decimalPlaces));
+  while (decimalPart.length < decimalPlaces) {
+    decimalPart = '0' + decimalPart;
+  }
+  return Math.floor(v).toLocaleString() + '.' + decimalPart;
+}
+
+/**
+ * Formats a dollar amount.
+ * @param amount the dollar amount to format.
+ * @returns the amount, formatted in dollars.
+ */
+export function formatAsDollarValue(amount: number): string {
+  const prefix = amount < 0 ? '-$' : '$';
+  return prefix + formatAsFloat(Math.abs(amount), 2);
+}

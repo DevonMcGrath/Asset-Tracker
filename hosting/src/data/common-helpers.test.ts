@@ -1,5 +1,9 @@
 import React from 'react';
-import {getByProperty} from './common-helpers';
+import {
+  formatAsDollarValue,
+  formatAsFloat,
+  getByProperty
+} from './common-helpers';
 
 const getByPropertyData: {value: string}[] = [
   {value: 'abc'},
@@ -42,5 +46,41 @@ describe('common-helpers getByProperty', () => {
     expect(result).not.toBeNull();
     expect(result?.value).toEqual(defaultValue);
     expect(result?.index).toEqual(-1);
+  });
+});
+
+describe('common-helpers formatAsFloat', () => {
+  test('formats 0 to 3 decimal places', () => {
+    expect(formatAsFloat(0, 3)).toEqual('0.000');
+  });
+
+  test('formats a value with a thousands separator', () => {
+    expect(formatAsFloat(1234.56, 4)).toEqual('1,234.5600');
+  });
+
+  test('formats a negative value', () => {
+    expect(formatAsFloat(-1234, 0)).toEqual('-1,234');
+  });
+
+  test('formats NaN', () => {
+    expect(formatAsFloat(NaN)).toEqual('NaN');
+  });
+});
+
+describe('common-helpers formatAsDollarValue', () => {
+  test('formats 0', () => {
+    expect(formatAsDollarValue(0)).toEqual('$0.00');
+  });
+
+  test('formats a value with a thousands separator', () => {
+    expect(formatAsDollarValue(1234.5678)).toEqual('$1,234.57');
+  });
+
+  test('formats a negative value', () => {
+    expect(formatAsDollarValue(-1234)).toEqual('-$1,234.00');
+  });
+
+  test('formats NaN', () => {
+    expect(formatAsDollarValue(NaN)).toEqual('$NaN');
   });
 });
