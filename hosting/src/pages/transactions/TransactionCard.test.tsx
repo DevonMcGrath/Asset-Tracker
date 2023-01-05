@@ -37,7 +37,9 @@ describe('TransactionCard component', () => {
       'deposit',
       'withdrawal',
       'purchase',
-      'sale'
+      'sale',
+      'dividend',
+      'interest'
     ];
     types.forEach((type) => {
       const {container} = render(TransactionCard.getIcon(type));

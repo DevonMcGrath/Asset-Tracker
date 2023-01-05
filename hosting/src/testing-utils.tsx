@@ -310,7 +310,8 @@ export function mockTransaction(
     const type = selectOne([
       'deposit',
       'withdrawal',
-      'purchase'
+      'purchase',
+      'interest'
     ] as TransactionType[]);
     return {
       timestamp,
@@ -328,7 +329,9 @@ export function mockTransaction(
     'deposit',
     'withdrawal',
     'purchase',
-    'sale'
+    'sale',
+    'dividend',
+    'interest'
   ] as TransactionType[]);
   let asset = '_CASH';
   if (type === 'purchase' || type === 'sale') {

@@ -34,7 +34,13 @@ export interface Account {
   transactions: Transaction[];
 }
 
-export type TransactionType = 'purchase' | 'sale' | 'withdrawal' | 'deposit';
+export type TransactionType =
+  | 'purchase'
+  | 'sale'
+  | 'withdrawal'
+  | 'deposit'
+  | 'dividend'
+  | 'interest';
 
 export interface Transaction {
   timestamp: Date;

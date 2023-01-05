@@ -71,7 +71,11 @@ export class TransactionCard extends React.Component<
         return <Icon>logout</Icon>;
       case 'purchase':
         return <Icon>shopping_cart</Icon>;
-      default:
+      case 'dividend':
+        return <Icon>paid</Icon>;
+      case 'interest':
+        return <Icon>percent</Icon>;
+      default: // sale
         return <Icon>sell</Icon>;
     }
   }
