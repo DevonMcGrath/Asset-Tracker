@@ -1,10 +1,84 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-  
-    // Any authenticated user can manage their own data
-  	match /demos/asset-tracker/profiles/{userId}/{documents=**} {
-    	allow read, write, delete: if request.auth != null && request.auth.uid == userId;
+
+    // Use: on write; Purpose: Checks if the object contains all required fields
+    // and only contains required + optional fields
+    function checkFields(obj, required, optional) {
+      let allFields = required.concat(optional);
+      return obj.keys().hasAll(required) && obj.keys().hasOnly(allFields);
+    }
+
+    // Use: on update; Purpose: Checks if the request only updates specific fields
+    function onlyAffects(requiredUpdateFields, optionalUpdateFields) {
+      let keyDiff = request.resource.data.diff(resource.data).affectedKeys();
+      let allDiffFields = requiredUpdateFields.concat(optionalUpdateFields);
+      return keyDiff.hasAll(requiredUpdateFields) && keyDiff.hasOnly(allDiffFields);
+    }
+
+    // Users can manage their own profile
+    match /demos/asset-tracker/profiles/{userId} {
+
+      function isValidOwner(owner) {
+        return (
+          owner is map &&
+          checkFields(owner, ['name', 'email'], ['photoURL']) &&
+          owner.name == request.auth.token.name &&
+          owner.email == request.auth.token.email &&
+          (
+            !('photoURL' in owner) ||
+            owner.photoURL is string
+          )
+        );
+      }
+
+      function isValidProfile() {
+        let data = request.resource.data;
+        return (
+          checkFields(data, ['id', 'created', 'updated', 'owner'], []) &&
+          data.id == request.auth.uid &&
+          data.created is timestamp &&
+          data.updated is timestamp &&
+          isValidOwner(data.owner)
+        );
+      }
+
+      allow read, delete: if request.auth != null && request.auth.uid == userId;
+
+      allow create: if request.auth != null && request.auth.uid == userId &&
+        isValidProfile();
+
+      allow update: if request.auth != null && request.auth.uid == userId &&
+        isValidProfile() &&
+        onlyAffects(['updated', 'owner'], []);
+    }
+
+    // Users can manage their own accounts
+    match /demos/asset-tracker/profiles/{userId}/accounts/{accountId} {
+      function isValidAccount() {
+        let data = request.resource.data;
+        return (
+          checkFields(data, ['created', 'updated', 'name', 'institution',
+            'type', 'subtype', 'currency', 'transactions'], []) &&
+          data.created is timestamp &&
+          data.updated is timestamp &&
+          data.name is string &&
+          data.institution is string &&
+          data.type is string &&
+          data.subtype is string &&
+          data.currency is string &&
+          data.transactions is list
+        );
+      }
+
+      allow read, delete: if request.auth != null && request.auth.uid == userId;
+
+      allow create: if request.auth != null && request.auth.uid == userId &&
+        isValidAccount();
+
+      allow update: if request.auth != null && request.auth.uid == userId &&
+        isValidAccount() &&
+        onlyAffects(['updated'], ['name', 'institution', 'type', 'subtype', 'currency', 'transactions']);
     }
     
     // Disallow everything else
