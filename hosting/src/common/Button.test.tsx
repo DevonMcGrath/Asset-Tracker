@@ -1,6 +1,7 @@
 import React from 'react';
 import {render, screen} from '@testing-library/react';
 import {Button} from './Button';
+import {wrapInRouter} from '../testing-utils';
 
 describe('Button component', () => {
   test('renders a primary button', () => {
@@ -62,5 +63,14 @@ describe('Button component', () => {
     const btn = container.firstChild;
     btn?.dispatchEvent(new MouseEvent('click', {bubbles: true}));
     expect(mockCallback).not.toHaveBeenCalled();
+  });
+
+  test('renders a link', () => {
+    const testLink = '/test/link/path';
+    const {container} = render(wrapInRouter(<Button link={testLink}></Button>));
+    const btn = container.firstChild;
+    expect(btn).toHaveClass('btn');
+    expect(btn?.nodeName).toEqual('A');
+    expect(btn).toHaveAttribute('href', testLink);
   });
 });

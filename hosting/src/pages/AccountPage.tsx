@@ -74,8 +74,12 @@ export class AccountPage extends React.Component<
           <section className='m-top-m m-bottom-l'>
             <h2>Account Transactions</h2>
             <ButtonGroup className='m-bottom-l'>
-              <Button icon='add' title='Add a new transaction'>
-                Add Transaction
+              <Button
+                link={'/transactions/create/' + id}
+                icon='add'
+                title='Add new transactions'
+              >
+                Add Transactions
               </Button>
             </ButtonGroup>
             <p className='info-text'>

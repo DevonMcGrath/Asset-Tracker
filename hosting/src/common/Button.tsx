@@ -1,4 +1,6 @@
 import React from 'react';
+import {Link} from 'react-router-dom';
+
 import './Button.css';
 import {Icon} from './Icon';
 
@@ -10,6 +12,7 @@ export class Button extends React.Component<
     type?: 'primary' | 'secondary' | 'tertiary' | 'icon';
     title?: string;
     disabled?: boolean;
+    link?: string;
     onClick?: (e: any, btn: Button) => void;
   },
   {}
@@ -50,6 +53,28 @@ export class Button extends React.Component<
   }
 
   render() {
+    const content = (
+      <>
+        {this.icon || null}
+        {this.props.children}
+      </>
+    );
+
+    // Enabled link
+    if (!this.props.disabled && this.props.link) {
+      return (
+        <Link
+          to={this.props.link}
+          className={this.buttonClass}
+          title={this.props.title}
+          aria-label={this.props.title}
+        >
+          {content}
+        </Link>
+      );
+    }
+
+    // Regular button (or disabled link)
     return (
       <button
         className={this.buttonClass}
@@ -58,8 +83,7 @@ export class Button extends React.Component<
         title={this.props.title}
         aria-label={this.props.title}
       >
-        {this.icon || null}
-        {this.props.children}
+        {content}
       </button>
     );
   }

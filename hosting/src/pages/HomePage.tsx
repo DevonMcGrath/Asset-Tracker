@@ -21,28 +21,18 @@ export class HomePage extends React.Component<
         <AppHeader />
         <AppBody>
           <div className='flex-container'>
-            <Button icon='add' title='Add a new transaction'>
-              Add Transaction
+            <Button
+              link='/transactions/create'
+              icon='add'
+              title='Add new transactions'
+            >
+              Add Transactions
             </Button>
             <Link className='accounts-link main-link' to='/accounts'>
               Accounts
             </Link>
           </div>
           <p>Hi, you are logged in to the home page.</p>
-          <ButtonGroup className='m-m'>
-            <Button>Primary</Button>
-            <Button type='secondary'>Secondary</Button>
-            <Button type='tertiary'>Tertiary</Button>
-          </ButtonGroup>
-          <ButtonGroup className='m-m'>
-            <Button disabled>Primary Dis.</Button>
-            <Button disabled type='secondary'>
-              Secondary Dis.
-            </Button>
-            <Button disabled type='tertiary'>
-              Tertiary Dis.
-            </Button>
-          </ButtonGroup>
         </AppBody>
       </Page>
     );
