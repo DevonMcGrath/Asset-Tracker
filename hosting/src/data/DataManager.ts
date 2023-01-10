@@ -301,9 +301,12 @@ export class DataManager {
    * @returns the sorted array of transactions.
    */
   public static sortTransactions(transactions: Transaction[]): Transaction[] {
-    return transactions.sort((a, b) =>
-      a.timestamp.valueOf() < b.timestamp.valueOf() ? 1 : -1
-    );
+    return transactions.sort((a, b) => {
+      const at = a.timestamp.valueOf();
+      const bt = b.timestamp.valueOf();
+      if (at !== bt) return at < bt ? 1 : -1;
+      return a.updated.valueOf() < b.updated.valueOf() ? 1 : -1;
+    });
   }
 }
 

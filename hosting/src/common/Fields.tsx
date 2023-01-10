@@ -64,6 +64,7 @@ export class DropDown<T> extends React.Component<
     disabled?: boolean;
     placeholder?: string;
     autoComplete?: string;
+    addBlankOption?: boolean;
     onChange?: (value: T | null, e: any) => void;
     onBlur?: (value: T | null, e: any) => void;
     formatOption?: (value: T, index: number) => {id: string; text: string};
@@ -129,6 +130,7 @@ export class DropDown<T> extends React.Component<
         onChange={this.handleChange}
         onBlur={this.handleBlur}
       >
+        {this.props.addBlankOption ? <option value=''></option> : null}
         {this.props.options.map(this.renderOption)}
       </select>
     );

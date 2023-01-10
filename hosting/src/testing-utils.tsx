@@ -1,5 +1,5 @@
 import React from 'react';
-import {act, render} from '@testing-library/react';
+import {act, fireEvent, render} from '@testing-library/react';
 import {BrowserRouter} from 'react-router-dom';
 import {User, IdTokenResult} from 'firebase/auth';
 import {
@@ -149,6 +149,95 @@ export async function click(
     await new Promise(process.nextTick);
   });
   return true;
+}
+
+/**
+ * Simulates a change event on an element.
+ * @param element the element to change.
+ * @param value the value to set.
+ * @returns true if a change event was fired, false otherwise.
+ */
+export async function change(
+  element: Element | Node | Document | Window | null,
+  value: string
+): Promise<boolean> {
+  if (!element) return false;
+  await act(async () => {
+    fireEvent.change(element, {target: {value}});
+    await new Promise(process.nextTick);
+  });
+  return true;
+}
+
+/**
+ * Changes the value of a field based on the DOM `id` attribute provided.
+ * @param id the `id` of the field to update.
+ * @param value the value to set.
+ * @returns true if a field was changed, false otherwise.
+ */
+export async function changeField(id: string, value: string): Promise<boolean> {
+  return await change(document.getElementById(id), value);
+}
+
+/**
+ * Finds the first HTML `option` that matches the filter.
+ * @param element the element to search options for.
+ * @param filter the filter function to check for a matching option.
+ * @returns the first HTML `option` element that matches the filter, or null if
+ * no `option` is found that passes the filter.
+ */
+export function findOption(
+  element: HTMLElement | ChildNode | Element | null,
+  filter: (option: ChildNode, text: string, index: number) => boolean
+): ChildNode | null {
+  if (!element) return null;
+
+  // Check all the children
+  const children = element.childNodes;
+  const n = children.length;
+  for (let i = 0; i < n; i++) {
+    const child = children.item(i);
+
+    // Not an option, check children
+    if (child.nodeName !== 'OPTION') {
+      const match = findOption(child, filter);
+      if (match) {
+        return match;
+      }
+      continue;
+    }
+
+    // Check if the child meets the filter
+    if (filter(child, child.textContent || '', i)) {
+      return child;
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Gets the `value` of the first HTML `option` that matches the filter.
+ * @param element the element to search options for.
+ * @param filter the filter function to check for a matching option.
+ * @param hasBlank true if the first option in the drop down is always blank.
+ * @returns the raw `value` of the first `option` that matches the filter, or
+ * null if no `option` is found that passes the filter.
+ */
+export function findOptionValue(
+  element: HTMLElement | ChildNode | Element | null,
+  filter: (option: ChildNode, text: string, index: number) => boolean,
+  hasBlank: boolean = false
+): string | null {
+  let value: string | null = null;
+  findOption(element, (option, text, index) => {
+    const isMatch = filter(option, text, index);
+    if (isMatch) {
+      value = (hasBlank ? index - 1 : index).toString();
+    }
+    return isMatch;
+  });
+  return value;
 }
 
 /**

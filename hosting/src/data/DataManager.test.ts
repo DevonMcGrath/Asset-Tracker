@@ -237,11 +237,15 @@ describe('DataManager class', () => {
 
   test('sorts an array of transactions by timestamp desc', () => {
     // Create mock data
+    const updated = new Date();
     const transactionA = mockTransaction('investment', 'CAD'); // oldest
     const transactionB = mockTransaction('investment', 'CAD'); // newest
     const transactionC = mockTransaction('investment', 'CAD');
+    transactionA.updated = updated;
+    transactionB.updated = new Date(updated.valueOf() + 1000);
+    transactionC.updated = updated;
     transactionB.timestamp = new Date(transactionA.timestamp.valueOf() + 1000);
-    transactionC.timestamp = new Date(transactionA.timestamp.valueOf() + 500);
+    transactionC.timestamp = transactionB.timestamp;
     const transactions = [transactionA, transactionB, transactionC];
 
     // Sort and check the result

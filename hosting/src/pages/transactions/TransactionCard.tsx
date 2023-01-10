@@ -1,7 +1,11 @@
 import React from 'react';
 import {Button} from '../../common/Button';
 import {Icon} from '../../common/Icon';
-import {formatAsDollarValue, formatAsFloat} from '../../data/common-helpers';
+import {
+  formatAsDollarValue,
+  formatAsFloat,
+  formatDate
+} from '../../data/common-helpers';
 import {Transaction, TransactionType} from '../../models/profile';
 
 import './TransactionCard.css';
@@ -30,7 +34,7 @@ export class TransactionCard extends React.Component<
             ' ' +
             t.currency +
             ' on ' +
-            t.timestamp.toLocaleDateString() +
+            formatDate(t.timestamp) +
             this.getAdditionalDetails()}
         </div>
         <Button

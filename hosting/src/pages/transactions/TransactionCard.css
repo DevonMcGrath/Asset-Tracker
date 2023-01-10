@@ -8,6 +8,8 @@
 }
 
 .transaction-card .transaction-info .icon {
+  position: relative;
+  top: 2px;
   margin-right: 8px;
   font-size: 16px;
   width: 16px;

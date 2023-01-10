@@ -4,7 +4,7 @@ import {app} from '../data/AppManager';
 import {AssetTrackerProfile} from '../models/profile';
 import {AccountPage} from './AccountPage';
 import {AccountsPage} from './AccountsPage';
-import {AddTransactionsPage} from './AddTransactionsPage';
+import {AddTransactionPage} from './AddTransactionPage';
 import {ErrorPage} from './ErrorPage';
 import {HomePage} from './HomePage';
 
@@ -66,7 +66,7 @@ export class AuthenticatedLayout extends React.Component<
         />
         <Route
           path={'/transactions/create'}
-          element={<AddTransactionsPage profile={profile} />}
+          element={<AddTransactionPage profile={profile} />}
         />
         {Object.keys(profile.accounts).map((accountID) => {
           return (
@@ -83,7 +83,7 @@ export class AuthenticatedLayout extends React.Component<
               key={accountID + '-t'}
               path={'/transactions/create/' + accountID}
               element={
-                <AddTransactionsPage profile={profile} accountID={accountID} />
+                <AddTransactionPage profile={profile} accountID={accountID} />
               }
             />
           );

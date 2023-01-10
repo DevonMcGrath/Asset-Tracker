@@ -91,4 +91,13 @@ describe('DropDown component', () => {
     const opt = container.getElementsByTagName('option').item(0);
     expect(opt?.textContent).toEqual(testText);
   });
+
+  test('adds a blank option', () => {
+    const {container} = render(
+      <DropDown options={['1', '2', '3']} addBlankOption />
+    );
+    const opt = container.getElementsByTagName('option').item(0);
+    expect(opt).toHaveAttribute('value', '');
+    expect(opt?.textContent || '').toEqual('');
+  });
 });

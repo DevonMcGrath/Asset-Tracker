@@ -1,7 +1,11 @@
 import React from 'react';
+import {Account} from '../models/profile';
+import {mockAccount} from '../testing-utils';
 import {
+  formatAccountTitle,
   formatAsDollarValue,
   formatAsFloat,
+  formatDate,
   getByProperty
 } from './common-helpers';
 
@@ -82,5 +86,44 @@ describe('common-helpers formatAsDollarValue', () => {
 
   test('formats NaN', () => {
     expect(formatAsDollarValue(NaN)).toEqual('$NaN');
+  });
+});
+
+describe('common-helpers formatDate', () => {
+  test('formats a date', () => {
+    const date = '2023-01-17';
+    expect(formatDate(new Date(date + ' 00:00'))).toEqual(date);
+  });
+});
+
+describe('common-helpers formatAccountTitle', () => {
+  function expectCorrectTitle(account: Account) {
+    // Check the title
+    const title = formatAccountTitle(account);
+    if (account.name) {
+      expect(title).toContain(account.name);
+    } else {
+      expect(title).toContain(`Account ${account.id}`);
+    }
+    if (account.institution) {
+      expect(title).toContain(account.institution);
+    }
+    if (account.currency) {
+      expect(title).toContain(account.currency);
+    }
+  }
+
+  test('formats an account title', () => {
+    const account = mockAccount(0);
+    account.name = 'TEST ACCOUNT';
+    account.institution = 'FAKE FI NAME';
+    account.currency = 'CAD TEST';
+    expectCorrectTitle(account);
+    account.currency = '';
+    expectCorrectTitle(account);
+    account.institution = '';
+    expectCorrectTitle(account);
+    account.name = '';
+    expectCorrectTitle(account);
   });
 });

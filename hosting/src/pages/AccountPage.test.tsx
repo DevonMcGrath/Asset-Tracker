@@ -8,7 +8,6 @@ import {
   testForCorePageElements
 } from '../testing-utils';
 import {ErrorPage} from './ErrorPage';
-import {act, prettyDOM, render} from '@testing-library/react';
 import {app} from '../data/AppManager';
 import {dataManager} from '../data/DataManager';
 

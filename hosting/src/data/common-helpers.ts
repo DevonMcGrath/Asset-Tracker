@@ -1,3 +1,5 @@
+import {Account} from '../models/profile';
+
 /**
  * Finds a value in an array by property value.
  * @param values the records to search.
@@ -31,6 +33,32 @@ export function getByProperty<T>(
 }
 
 /**
+ * Formats a number based on an English locale, i.e. a comma for the thousands
+ * separator and a period before any decimal portion of the number.
+ * @param v the number to format.
+ * @returns a number formatted in the English locale.
+ */
+function toENLocaleNumber(v: number): string {
+  const numParts = ('' + v).split('.');
+  const intPart = numParts[0];
+
+  // Add a thousands separator
+  let formattedIntPart = '';
+  const n = intPart.length;
+  for (let i = 0; i < n; i += 3) {
+    const start = n - i - 3;
+    formattedIntPart =
+      intPart.substring(start, start + 3) + ',' + formattedIntPart;
+  }
+  formattedIntPart = formattedIntPart.replace(/(^,|,$)/g, '');
+
+  if (numParts.length > 1) {
+    return formattedIntPart + '.' + numParts[1];
+  }
+  return formattedIntPart;
+}
+
+/**
  * Formats a number with a specific number of decimal places.
  * @param v the number to format.
  * @param decimalPlaces the number of decimal places to include.
@@ -38,12 +66,12 @@ export function getByProperty<T>(
  */
 export function formatAsFloat(v: number, decimalPlaces: number = 3): string {
   if (isNaN(v)) return 'NaN';
-  if (decimalPlaces < 1) return Math.round(v).toLocaleString();
+  if (decimalPlaces < 1) return toENLocaleNumber(Math.round(v));
   let decimalPart = '' + Math.round((v % 1) * Math.pow(10, decimalPlaces));
   while (decimalPart.length < decimalPlaces) {
     decimalPart = '0' + decimalPart;
   }
-  return Math.floor(v).toLocaleString() + '.' + decimalPart;
+  return toENLocaleNumber(Math.floor(v)) + '.' + decimalPart;
 }
 
 /**
@@ -54,4 +82,35 @@ export function formatAsFloat(v: number, decimalPlaces: number = 3): string {
 export function formatAsDollarValue(amount: number): string {
   const prefix = amount < 0 ? '-$' : '$';
   return prefix + formatAsFloat(Math.abs(amount), 2);
+}
+
+/**
+ * Formats the day, month, and year portion of a date.
+ * @param date the date to format.
+ * @returns the formatted date in ISO format (yyyy-mm-dd).
+ */
+export function formatDate(date: Date) {
+  return (
+    date.getFullYear() +
+    '-' +
+    ('0' + (date.getMonth() + 1)).slice(-2) +
+    '-' +
+    ('0' + date.getDate()).slice(-2)
+  );
+}
+
+/**
+ * Gets a standard title for an account.
+ * @param account the account to create a title for.
+ * @returns the title.
+ */
+export function formatAccountTitle(account: Account): string {
+  let title = account.name || 'Account ' + account.id;
+  if (account.currency) {
+    title += ' (' + account.currency + ')';
+  }
+  if (account.institution) {
+    title = account.institution + ': ' + title;
+  }
+  return title;
 }
