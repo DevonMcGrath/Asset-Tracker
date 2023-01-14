@@ -1,5 +1,3 @@
-import React from 'react';
-import {initializeApp} from 'firebase/app';
 import {signOut} from 'firebase/auth';
 import {FIREBASE_CONFIG} from '../firebase-config';
 import {app, AppManager} from './AppManager';

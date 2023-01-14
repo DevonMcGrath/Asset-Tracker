@@ -1,4 +1,3 @@
-import React from 'react';
 import {Account} from '../models/profile';
 import {mockAccount} from '../testing-utils';
 import {

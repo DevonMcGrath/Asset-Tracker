@@ -1,4 +1,3 @@
-import React from 'react';
 import {render, screen} from '@testing-library/react';
 import {User} from 'firebase/auth';
 import {AppHeader} from './AppHeader';

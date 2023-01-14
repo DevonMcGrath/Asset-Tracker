@@ -1,4 +1,3 @@
-import React from 'react';
 import {Timestamp} from 'firebase/firestore';
 import {convertTimestamps} from './firebase-helpers';
 

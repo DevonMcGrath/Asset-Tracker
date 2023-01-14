@@ -1,10 +1,5 @@
-import {render, screen} from '@testing-library/react';
 import {HomePage} from './HomePage';
-import {
-  mockProfile,
-  testForCorePageElements,
-  wrapInRouter
-} from '../testing-utils';
+import {mockProfile, testForCorePageElements} from '../testing-utils';
 
 describe('HomePage component', () => {
   test('renders a home page', () => {

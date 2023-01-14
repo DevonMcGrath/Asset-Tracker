@@ -1,4 +1,3 @@
-import React from 'react';
 import {act, fireEvent, render} from '@testing-library/react';
 import {BrowserRouter} from 'react-router-dom';
 import {User, IdTokenResult} from 'firebase/auth';

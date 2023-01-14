@@ -1,7 +1,5 @@
 import React from 'react';
 import './App.css';
-import {AppBody} from './common/AppBody';
-import {AppHeader} from './common/AppHeader';
 import {app, AppManager} from './data/AppManager';
 import {dataManager} from './data/DataManager';
 import {AssetTrackerProfile} from './models/profile';
