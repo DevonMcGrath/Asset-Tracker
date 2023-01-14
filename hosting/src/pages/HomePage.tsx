@@ -4,10 +4,10 @@ import {Page} from './Page';
 import {AppBody} from '../common/AppBody';
 import {AppHeader} from '../common/AppHeader';
 import {Button} from '../common/Button';
-import {ButtonGroup} from '../common/ButtonGroup';
-import {AssetTrackerProfile} from '../models/profile';
+import {Account, AssetTrackerProfile} from '../models/profile';
 
 import './HomePage.css';
+import {AccountSummary} from './accounts/AccountSummary';
 
 export class HomePage extends React.Component<
   {profile: AssetTrackerProfile},
@@ -16,11 +16,15 @@ export class HomePage extends React.Component<
   public static readonly PAGE_ID = 'home';
 
   render(): React.ReactNode {
+    const accounts: Account[] = Object.keys(this.props.profile.accounts)
+      .map((id) => this.props.profile.accounts[id])
+      .sort((a, b) => (a.updated.valueOf() < b.updated.valueOf() ? 1 : -1));
+
     return (
       <Page id={HomePage.PAGE_ID}>
         <AppHeader />
         <AppBody>
-          <div className='flex-container'>
+          <div className='flex-container m-bottom-l'>
             <Button
               link='/transactions/create'
               icon='add'
@@ -32,7 +36,13 @@ export class HomePage extends React.Component<
               Accounts
             </Link>
           </div>
-          <p>Hi, you are logged in to the home page.</p>
+          {accounts.length ? (
+            accounts.map((a) => {
+              return <AccountSummary key={a.id} account={a} />;
+            })
+          ) : (
+            <p>You haven't added any accounts.</p>
+          )}
         </AppBody>
       </Page>
     );

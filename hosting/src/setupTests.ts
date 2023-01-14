@@ -7,7 +7,6 @@ import {FirebaseApp, FirebaseOptions} from 'firebase/app';
 import {Auth} from 'firebase/auth';
 import {
   Firestore,
-  FirestoreDataConverter,
   CollectionReference,
   DocumentData,
   DocumentReference,
@@ -17,6 +16,26 @@ import {
 } from 'firebase/firestore';
 import {FIREBASE_CONFIG} from './firebase-config';
 import {mockFirestore, mockFirestoreID} from './testing-utils';
+
+declare global {
+  var google: any;
+}
+
+// Google Charts
+global.google = {
+  charts: {
+    load: jest.fn(),
+    setOnLoadCallback: (callback: any) => {
+      if (typeof callback === 'function') callback();
+    }
+  },
+  visualization: {
+    PieChart: class {
+      draw = jest.fn();
+    },
+    arrayToDataTable: jest.fn()
+  }
+};
 
 const locationMock: {[key: string]: any} = {
   assign: jest.fn(),
