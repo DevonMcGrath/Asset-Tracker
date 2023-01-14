@@ -25,7 +25,7 @@ export class AppHeader extends React.Component<{title?: string}, {}> {
             >
               <img
                 className='app-header-logo'
-                src='/img/logo192-inverted.png'
+                src='/img/logo192.png'
                 alt='Asset Tracker Logo'
               />
             </Link>
