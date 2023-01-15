@@ -28,9 +28,9 @@ export class HomePage extends React.Component<
             <Button
               link='/transactions/create'
               icon='add'
-              title='Add new transactions'
+              title='Add new transaction'
             >
-              Add Transactions
+              Add Transaction
             </Button>
             <Link className='accounts-link main-link' to='/accounts'>
               Accounts
